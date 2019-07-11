@@ -1,4 +1,4 @@
-% compare CAMS aerosol model aerosol optical thickness (AOT) to AVIRIS-NG
+% Compare CAMS aerosol model aerosol optical thickness (AOT) to AVIRIS-NG
 % retrieved AOT
 %
 % input:    CAMS AOT reanalysis for various aerosol types as netcdf
@@ -28,7 +28,7 @@ for i=1:length(file)
     
     time(length(time)+1:length(time)+l) = double(ncread(path+file(i), 'time')); %hours since 1900-01-01 00:00:00.0'
 end
-%imagesc(carbon_550(:,:,2)); %sanity check
+imagesc(carbon_550(:,:,2)); %sanity check
 
 % convert time to decimal year
 start_time = datetime(1900, 01, 01,00,00,00);
