@@ -3,7 +3,7 @@
 %
 % input: calculated radiance for a constant surface albedo of 0, 0.5 and 1.0 
 %
-% output: spherical albedo, two way transmittance and path radiance
+% output: spherical albedo, two-way-transmittance and path radiance
 %
 % For details "Verhoef, W. and Bach, H.: Simulation of hyperspectral and 
 % directional radiance images using coupled biophysical and atmospheric radiative
@@ -14,9 +14,9 @@
 
 function [sphericalalbd, trans2, path] = albedo3_4(radiance)
     
-rad0av = radiance(:,1:3:end); %path radiance
-rad5av = radiance(:,2:3:end);
-rad1av = radiance(:,3:3:end);
+rad0av = radiance(:,1:3:end); % radiance for surface albedo of 0
+rad5av = radiance(:,2:3:end); % radiance for surface albedo of 0.5
+rad1av = radiance(:,3:3:end); % radiance for surface albedo of 1.0
 
 f=(rad1av-rad0av)./(2.*(rad5av-rad0av));
 
