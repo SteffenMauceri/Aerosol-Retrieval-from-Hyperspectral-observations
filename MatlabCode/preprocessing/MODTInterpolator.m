@@ -1,6 +1,6 @@
 % Interpolate between radiative transfer calculations
 % 
-% Input: calculated radiances for constant Surface Albedo(0, 0.5, 1.0), SZA, ground-elevation, ground-sensor distance 
+% Input: calculated radiances for constant surface albedo(0, 0.5, 1.0), SZA, ground-elevation, ground-sensor distance 
 % 
 % Output: interpolated and radiances and constant surface albedo, SZA, ground elevation, ground-sensor distance 
 %
@@ -53,7 +53,7 @@ for m=aerosol
             id2 =id2-1;
         end
         
-        % check that the two found samples are neigbours. E.g. only
+        % check that the two found samples are neighbours. E.g. only
         % interpolate between radiance calculation where the difference in
         % cos(SZA) is less than 0.16
         if abs(values(:,id1)-values(:,id2)) <= [0.08;0;0.16;1;1] & values(1,id1)< 0.18 & values(1,id2)< 0.18 | ...
@@ -74,5 +74,5 @@ for m=aerosol
     
     save(strcat('/Users/stma4117/Studium/LASP/Hyper/Sensitivity/ProcessedData/',string(m),'interp.mat'), 'values', 'radiance', 'wl' )
 end
-%execute RadianceGenarator4 that will add different surface spectra.
+%execute RadianceGenarator4 that will add different surface spectra to calculated radiances
 RadianceGenerator4 %
