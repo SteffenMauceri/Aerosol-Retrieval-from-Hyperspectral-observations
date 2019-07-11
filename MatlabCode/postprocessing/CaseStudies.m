@@ -33,7 +33,7 @@ target_c(target_c>cutoff) = nan;
 %calculate difference between predictions and GroundTruth for AOT < 0.3
 diff2 = nanstd(abs(prediction_c - target_c));
 
-%calculate baseline values for comparison. See paper for details
+%calculate baseline results for comparison. See paper for details
 prediction_r = rand(10000,60)*cutoff/3;%guess between 0 and 1*cutoff and devide by 3
 diff_random = mean(nanstd(abs((prediction_r) - target_c)));
 prediction_r = rand(10000,60)*cutoff/3;%know AOT and devide by 3
