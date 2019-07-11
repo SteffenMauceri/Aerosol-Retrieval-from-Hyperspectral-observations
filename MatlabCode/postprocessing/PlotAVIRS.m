@@ -1,7 +1,6 @@
-% Plot aerosol optical thickness (AOT) retrieval from AVIRIS-NG for a single
-% scene
+% Plot aerosol optical thickness (AOT) retrieval from AVIRIS for a single scene
 %
-% input:    name of neural network that made the prediction and AVIRIS scene name 
+% input:    Neural Network predicted AOT from AVIRIS scene 
 %
 % output:   Spatially resolved plot of AOT and Median, Standard deviation
 %           per aerosol type for the analyzed scene
@@ -11,7 +10,7 @@
 clear
 
 % START Change Code .............
-% choose neural network and scene to plot
+% choose neural network that made the retrieval
 name = '5.1_05_128x64_noise1_reg5000_2000_ind_relu_refl';
 % choose scene
 scene = '204';
@@ -28,15 +27,14 @@ prediction(:,2:4) = prediction(:,1:3);
 prediction(:,1) = sum(prediction(:,2:4),2); %calculate combined AOT of all aerosol types
 
 % load output from verification neural network to mask AVIRIS pixel that
-% are to different to the training set. Radiance at every wavelengt was
-% compared and difference was calculated
+% are to different to the training set. 
 name = '5.1_05_512x32_noise1_verification_reg5000_500';
 load(strcat('/Users/stma4117/Studium/LASP/Hyper/NN/PythonOverflow/trained/prediction_AVIRIS' , name,'_',scene,'.mat'), 'verification')
 % concaternate with AOT predictions
 prediction(:,5:322+4) = verification;
 
 % calculate mean squared error
-MEAE = mean((prediction(:,5:322+4)).^2,2); %calculate difference ob prediction-NG observations to training-set
+MEAE = mean((prediction(:,5:322+4)).^2,2); %calculate MSE of prediction-NG observations to training-set
 % save mean squared error to AOT predictions
 prediction(:,5) = MEAE*10;
 % remove calculated differences for individual wavelengths
