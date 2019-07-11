@@ -1,5 +1,5 @@
 % Compare retrieval accuracy for different amounts of noise in the data and 
-% different sampling of the available wavelengths. 
+% different sampling of the available wavelengths
 %
 % input:    Predictions and GroundTruth values for TestCases
 % 
@@ -10,8 +10,8 @@
 
 clear
 k=0;
-for n= [0, 1, 3, 9] % amount of AVIRIS-NG equivalent noise
-    for s=[319, 107, 36, 12, 4] %number of wavlength bands
+for n= [0, 1, 3, 9]             % amount of AVIRIS-NG equivalent noise
+    for s=[319, 107, 36, 12, 4] % number of wavlength bands
         k=k+1;
         name = strcat('4.4_05_128x32_noise_' , string(n) , '_sampling_' , string(s) , '_reg5000_ind_relu');
         load(strcat('/Users/stma4117/Studium/LASP/Hyper/NN/trained/prediction' , name,'.mat'))
@@ -40,7 +40,6 @@ prediction_r = rand(10000,60)*cutoff/3;%know AOT and devide by 3
 diff_random2 = mean(nanstd(abs(repmat(sum(target_c(:,1:3),2),1,60)/3 - target_c)));    %abs
 
 %% plot
-
 for i=1:3
     conf_i(:,:,i) = reshape(diff(i:3:end), 5,4);
     conf_i_2(:,:,i) = reshape(diff2(i:3:end), 5,4);
@@ -52,11 +51,9 @@ labelsx={'0','1','3','9'};
 labelsy={'319','107','36','12' ,'4'};
 title_i={'Carbon','Dust','Sulfate'};
 
-% % %%   combine all aerosols
+% combine all aerosols
 conf_mean = mean(conf_i,3);
 conf_i(:,:,1) = conf_mean;
-% % 
-% % %%
 
 for i=1:3
     for j=1:2
