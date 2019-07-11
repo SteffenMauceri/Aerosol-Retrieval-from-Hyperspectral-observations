@@ -1,13 +1,14 @@
-# Normalizes and converts multiple AVIRIS flights for Neural Network to later compare with MODIS, CAMS, AERONET
+# Normalizes and converts csv from multiple AVIRIS flights to make predictions with trained Neural Network
+# to later compare with MODIS, CAMS, AERONET, ...
 #
-# input:    csv files that contain the AVIRIS radiances
+# input:    csv files that contain the AVIRIS radiances of different flights
 # output:   numpy array of normalized AVIRIS radiances
 #
 # Steffen Mauceri, June 2018
 
 import numpy as np
 
-# read 21 concaternated AVIRIS-NG observations for AOT retrieval and comparison to AERONET, MODIS, CAMS
+# read 21 concaternated AVIRIS-NG observations
 input=np.genfromtxt('/Users/stma4117/Studium/LASP/Hyper/NN/PythonOverflow/data/AVIRIS_eval_5_refl.csv', delimiter=',')
 
 # number of wavelength bands in input file
