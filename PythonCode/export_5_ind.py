@@ -1,4 +1,4 @@
-# Functions to reverse normalization of data and export numpy arrays to .mat for Matlab
+# Functions to reverse normalization of Neural Network output and export numpy arrays to .mat for Matlab
 #
 # input:    Name of network
 # output:   .mat files for Matlab
@@ -37,9 +37,9 @@ def export_AVIRIS(name):
     prediction = data['prediction_np']
 
     # reverse normalization
-    data = np.load('data/normalization_mix_5_refl.npz')# load normalization
-    target_raw_std = data['output_std'] #load standard deviation
-    target_raw_mean = data['output_mean'] # load mean
+    data = np.load('data/normalization_mix_5_refl.npz') # load normalization
+    target_raw_std = data['output_std']                 # load standard deviation
+    target_raw_mean = data['output_mean']               # load mean
     prediction = (prediction*target_raw_std[1:4])+target_raw_mean[1:4]
 
     scipy.io.savemat('../PythonOverflow/trained/prediction_AVIRIS'+ name +'.mat', dict(prediction=prediction))
@@ -51,9 +51,8 @@ def export_sensitivity(name):
     data = np.load('../PythonOverflow/data/prediction_sensitivity'+ name +'.npz')
     prediction = data['prediction_np']
     target = data['target_np']
-    #features = data['features_np']
-
-    #convert it back
+    
+    # reverse normalization
     data = np.load('data/normalization_mix_5_refl.npz')
     target_raw_std = data['output_std']
     target_raw_mean = data['output_mean']
