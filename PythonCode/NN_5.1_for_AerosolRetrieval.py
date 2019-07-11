@@ -1,5 +1,5 @@
 # Neural Network for aerosol optical thickness (AOT) retrieval from hyperspectral observations
-# main program for neural network definition, training and making predictions.
+# Main program for neural network definition, training and predictions
 #
 # input: normalized (zero mean unit variance) hyperspectral radiance adjusted for Sun-Earth distance
 # (radiance * (1 - 0.01672*cos(0.9856*(day_of_year - 4))^2) and SZA (radiance / cos(SZA))
@@ -31,9 +31,9 @@ def NN(ID):
     logs_path = 'tmp/logs/' + name + str(ID)
 
     # Network
-    n_inputs = 319+3  # number of inputs= radiance at 319 wavelength bands + SZA, Ground Elevation, Distance Sensor-Surface
-    n_outputs = 3  # number of outputs= AOT for brown carbon, dust and sulfate
-    n_surf = 8 #number of surfaces types
+    n_inputs = 319+3    # number of inputs= radiance at 319 wavelength bands + SZA, Ground Elevation, Distance Sensor-Surface
+    n_outputs = 3       # number of outputs= AOT for brown carbon, dust and sulfate
+    n_surf = 8          #number of surfaces types
 
     # number of neurons for the first 4 layers
     n_hidden_1 = n_neurons1
@@ -86,7 +86,6 @@ def NN(ID):
             layer_01 = tf.nn.relu(tf.add(tf.matmul(x, weights['h01']), biases['b01']))  # surface
             layer_02 = tf.nn.sigmoid(tf.add(tf.matmul(layer_01, weights['h02']), biases['b02']))  # surface
             return layer_02
-
         surface = sur(X)
 
     def MLP(x): # Neural Network Architecture for AOT retrieval
@@ -266,19 +265,19 @@ def NN(ID):
 name = '5.1_05_256x32_noise1_reg5000_2000_ind_relu_refl_110' #name of network that we are training
 name_learn = '5.1_05_256x32_noise1_reg5000_2000_ind_relu_refl' # name of network we are loading if (Load_IO == True)
 
-Load_IO = True #do we want to load a pretrained network
-Aviris_IO = True #do we want to predict AOT for AVIRIS-NG observations
-AVIRIS_eval_IO = False #do we want to predict AOT for all AVIRIS-NG observations.
-Sensitivity_IO = False #do we want to perform a sensitivity analysis
-Surface_IO = False #do we want to retrieve the surface type as part of the Neural Network
-weighted_IO = False #do we want to weight error on carbon twice as much as dust and sulfate
+Load_IO = True          #do we want to load a pretrained network
+Aviris_IO = True        #do we want to predict AOT for AVIRIS-NG observations
+AVIRIS_eval_IO = False  #do we want to predict AOT for all AVIRIS-NG observations.
+Sensitivity_IO = False  #do we want to perform a sensitivity analysis
+Surface_IO = False      #do we want to retrieve the surface type as part of the Neural Network
+weighted_IO = False     #do we want to weight error on carbon twice as much as dust and sulfate
 
-reg = 1 / 5000  # L2 regularization factor
-n_neurons1 = 128 # number of neurons for first four layers
-n_neurons2 = 32 # number of neurons for last layer / 3
+reg = 1 / 5000          # L2 regularization factor
+n_neurons1 = 128        # number of neurons for first four layers
+n_neurons2 = 32         # number of neurons for last layer / 3
 
-training_epochs = 0  # how often to we maximally iterate over our samples. Set to 0 for no training, just prediction
-batch_size = 128  # how many examples to we use at once
+training_epochs = 0     # how often to we maximally iterate over our samples. Set to 0 for no training, just prediction
+batch_size = 128        # how many examples to we use at once
 
 # parameter for print/update
 display_step = 40
@@ -290,7 +289,9 @@ targets = data['output']
 targets = targets[:,1:4]
 features = data['input']
 surf = data['type'] # load surface type. First element stands for unknown surface
-surf[:,0] = np.where(surf[:,0]>0.2,0,1) # Set unknown surface to 0 if it represents more than 20% of the surface mixture. We will ignore these surface retrievals when calculating our loss
+# Set unknown surface to 0 if it represents more than 20% of the surface mixture. 
+# We will ignore these surface retrievals when calculating our loss
+surf[:,0] = np.where(surf[:,0]>0.2,0,1) 
 
 if Aviris_IO:
     if AVIRIS_eval_IO:
