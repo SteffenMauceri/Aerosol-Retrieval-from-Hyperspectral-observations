@@ -1,6 +1,6 @@
 # Normalizes and converts individual AVIRIS flight scene for Neural Network
 #
-# input:    csv files that contain the AVIRIS radiances
+# input:    csv file that contains the AVIRIS radiances
 # output:   numpy array of normalized AVIRIS radiances
 #
 # Steffen Mauceri, Mar 2018
@@ -10,7 +10,7 @@ import numpy as np
 # number of wavelength bands in input file
 wl_bands = 319
 
-# read in csv files and convert to numpy arrays
+# read in csv file
 input = np.genfromtxt('/Users/stma4117/Studium/LASP/Hyper/NN/PythonOverflow/data/AVIRIS_20160204_refl.csv', delimiter=',')
 
 # load normalization from training data
