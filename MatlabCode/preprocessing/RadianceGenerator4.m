@@ -2,7 +2,7 @@
 % radiative transfer calculations
 % 
 % Input: (interpolated, normalized for sun-earth distance and SZA) radiances for three aerosol types 
-%        from radiative transfer calculations for constant surface albedo
+%        from radiative transfer calculations for constant surface albedos
 % 
 % Output: radiances for three aerosol types from radiative transfer
 % calculations for different surface spectra.
