@@ -74,7 +74,7 @@ for i=1:21
     dust(i) = dust_550(a,b,c);
     sulfate(i) = sulfate_550(a,b,c);
     
-    %calculate standard deviation for neigbouring points in space and time
+    %calculate standard deviation for neighbouring points in space and time
     carbon_std(i) = std(reshape(carbon_550(a-1:a+1,b:b+2,c:c+2),27,1));
     dust_std(i) = std(reshape(dust_550(a-1:a+1,b:b+2,c:c+2),27,1));
     sulfate_std(i) = std(reshape(sulfate_550(a-1:a+1,b:b+2,c:c+2),27,1));
