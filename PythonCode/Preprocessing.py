@@ -1,4 +1,4 @@
-# Normalizes and converts Neural Network input and outputs from csv to numpy array
+# Normalizes and converts Neural Network inputs and outputs from csv to numpy array
 #
 # input:    csv files that contain the neural network inputs and outputs and surface types
 # output:   numpy array of neural network inputs and outputs and surface types
@@ -7,9 +7,8 @@
 
 import numpy as np
 
-# do we want to load an existing normalization (mean/std of training set)
+# do we want to load an existing normalization (mean/std of other training set)
 load_normalization_IO= False
-
 
 # read in csv files and convert to numpy arrays
 input=np.genfromtxt('/Users/stma4117/Studium/LASP/Hyper/NN/PythonOverflow/data/input_mix_5_05_interp_noise1_refl.csv', delimiter=',')
@@ -27,16 +26,16 @@ if load_normalization_IO:
     output_std = data['output_std']
     output_mean = data['output_mean']
 else:
-    input_mean = np.mean(input, axis=0)        #calculate mean of Features
-    input_std = np.std(input, axis=0)         #calculate standard-distribution of Features
-    output_mean = np.mean(output, axis=0)  # calculate mean of Features
-    output_std = np.std(output, axis=0)  # calculate standard-distribution of Features
+    input_mean = np.mean(input, axis=0)         #calculate mean of Features
+    input_std = np.std(input, axis=0)           #calculate standard-distribution of Features
+    output_mean = np.mean(output, axis=0)       # calculate mean of Features
+    output_std = np.std(output, axis=0)         # calculate standard-distribution of Features
     # save normalization to reverse after prediction
     np.savez('/Users/stma4117/Studium/LASP/Hyper/NN/Python/data/normalization_mix_5_refl',
              input_std=input_std, output_std=output_std, input_mean=input_mean, output_mean=output_mean)
 
-input = (input - input_mean)/input_std    #normalize Features
-output = (output - output_mean)/output_std    #normalize Features
+input = (input - input_mean)/input_std          #normalize Features
+output = (output - output_mean)/output_std      #normalize Targets
 
 #save neural network inputs/outputs
 np.savez('/Users/stma4117/Studium/LASP/Hyper/NN/Python/data/input_output_mix_5_refl',
