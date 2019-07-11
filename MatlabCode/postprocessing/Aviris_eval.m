@@ -1,7 +1,7 @@
 % Loads predictions of aerosol optical thickness (AOT) for AIVIRS flights 
 % and calculates mean, median and standard deviation
 %
-% input:    name of neural network to load retrieved AOT from AVIRIS
+% input:    Predicted AOT for AVIRIS flights from Neural Network
 % output:   Mean, Median, Standard deviation of retrieved AOT from AIVIRS
 %           flights
 % 
@@ -12,7 +12,7 @@
 %% START Make Changes .................
 % visualize some results after processing
 visualize_IO = false;
-% use a set percent of the retrieved AVIRIS AOT pixel instead of a fixed threshold 
+% use a set percent of the retrieved AVIRIS AOT pixels instead of a fixed threshold 
 cutOff_perc = true;
 
 % name of neural network that generated AOT for AVIRIS flights
