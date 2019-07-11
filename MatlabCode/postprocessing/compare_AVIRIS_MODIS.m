@@ -1,6 +1,6 @@
-% Compare MODIS aerosol optical thickness (AOT) to AVIRIS-NG retrieved AOT
+% Compare MODIS aerosol optical thickness (AOT) to AVIRIS retrieved AOT
 %
-% input:    MODIS AOT for combined AOT
+% input:    MODIS retrieval for combined AOT
 %           AVIRIS AOT prediction from neural network
 % 
 % output:   RMSE, Correlation and Plot of combined AOT
@@ -18,7 +18,7 @@ MODIS(MODIS(:,2) == -9999 | MODIS(:,4) ~= 3, :) = [];
 start_time = datetime(1993, 01, 01,00,00,00);
 MODIS(:,7) = decyear(start_time + MODIS(:,7)/86400);
 
-%% load AVIRIS eval
+%% load AVIRIS evaluation data
 %load date from AVIRIS flights
 file = {'20160101.nc','20160102.nc','20160105.nc', '20160107.nc', '20160110.nc',...
     '20160126.nc','20160127.nc', '20160128.nc','20160129.nc','20160203.nc',...
@@ -27,7 +27,7 @@ file = {'20160101.nc','20160102.nc','20160105.nc', '20160107.nc', '20160110.nc',
     '20160224.nc','20160303.nc'};
 variable = {'iyear', 'imonth', 'idayofmonth'};
 
-%concat year, month and day to date
+%concaternate year, month and day to date
 for j=1:length(file)
     date(j,1:3) = [double(ncread(string(file(j)), char(variable(1)))) double(ncread(string(file(j)), ...
         char(variable(2)))) double(ncread(string(file(j)), char(variable(3))))];
@@ -40,7 +40,7 @@ load('/Users/stma4117/Studium/LASP/Hyper/climatology/AvirisLatLon_fine.mat')
 
 %% find closest MODIS measurements in time and space 
 for i=1:21 %number of flights
-    %cacluate distance in space
+    %caculate distance in space
     distA = ((LAT(i,:) - MODIS(:,5)).^2 + (LON(i,:) - MODIS(:,6)).^2).^(0.5);
     dist(i,:) = min(distA,[],2)';
     %calculate distace in time
@@ -59,10 +59,10 @@ for i=1:21
     MODIS_AOT(i) = mean(MODIS(dist(i,:)<space_cutoff & timedistA(i,:)<time_cutoff,2))/1000;
     MODIS_AOT_STD(i) = std(MODIS(dist(i,:)<space_cutoff & timedistA(i,:)<time_cutoff,2))/1000;
 end
-mean(nel)   %check that we have enough MODIS measurements to compare to. Otherwise increase cutoff values
-min(nel)    %check that we have enough MODIS measurements to compare to
+mean(nel)   
+min(nel)    %check that we have enough MODIS measurements to compare. Otherwise increase cutoff values
 %
-%% load AVIRIS eval
+%% load AVIRIS evaluation data
 Aviris_eval %program that will load and preprocess AVIRIS derived AOT
 
 %% Plot
@@ -80,6 +80,6 @@ legend('1\sigma AVIRIS-NG','1\sigma MODIS','MODIS Aqua/Terra', 'x=y')
 xlabel('AVIRIS-NG AOT [\tau_{aer}]')
 ylabel('MODIS Terra/Aqua AOT [\tau_{aer}]')
 
-%% Calculate some statistics: Correlation, P-value, RMSE
+%% Calculate statistics: Correlation, P-value, RMSE
 [MODIS_AOT_all, pval] = corr(MED(:,1), MODIS_AOT')
 immse(MED(:,1), MODIS_AOT')^0.5 %RMSE
