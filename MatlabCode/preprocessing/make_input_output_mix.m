@@ -1,5 +1,5 @@
 % Make training dataset for Neural Network
-% mix calculated radiances from different aerosol types and apply AVIRIS-NG equivalent noise
+% Mix calculated radiances from different aerosol types and apply AVIRIS-NG equivalent noise
 %
 % input:    (interpolated, normalized for sun-earth distance and SZA) radiances for three aerosol types 
 %            from radiative transfer calculations
@@ -10,7 +10,7 @@
 % Steffen Mauceri, Jan 2018
 
 clear
-rng(12345)
+rng(12345)%use a seed to reproduce our random process
 
 %load calculated radiances for three aerosol types
 load('/Users/stma4117/Studium/LASP/Hyper/NN/GeneratedData/RadianceGenerated5_052_alexander_tropcarbon_interp.mat')
@@ -53,7 +53,6 @@ input = [mix GroundTruth(:,2) GroundTruth(:,3:4)];
 output = GroundTruth(:,[1 5 6 7]);
 
 %% remove samples for testing for final performance analysis
-rng(12345)%use a seed to reproduce our random process
 id = randi(length(output), [10000, 1]);%get 10000 samples
 input_test = input(id,:);
 output_test = output(id,:);
