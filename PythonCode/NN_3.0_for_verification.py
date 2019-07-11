@@ -1,14 +1,13 @@
-# Neural Network / AutoEncoder to verify whether sample comes form training distribution
+# Neural Network / AutoEncoder to verify whether new sample comes from training distribution
 # Is used to mask out individual pixels in retrievals from Neural Netork for aerosol retrieval "NN_5.1_mixed_ind_relu.py"
 #
-# input: normalized (zero mean unit variance) hyperspectral radiance adjusted for Sun-Earth distance
+# input: normalized (zero mean unit variance) hyperspectral radiance, adjusted for Sun-Earth distance
 # (radiance * (1 - 0.01672*cos(0.9856*(day_of_year - 4))^2) and SZA (radiance / cos(SZA))
 #
 # output:   same as input
 #
 # note:
 # - run Preprocessing.py with load_normalization_IO = True to generate input file for training
-# - best results for few epochs: <10
 #
 # See paper for details: "Neural Network for Aerosol Retrieval from Hyperspectral Imagery"
 # available at: https://www.atmos-meas-tech-discuss.net/amt-2019-228/
@@ -19,9 +18,7 @@ import random
 import tensorflow as tf
 import scipy.io
 
-import scipy.io
-
-def NN_ver(ID):
+def NN_verification(ID):
     logs_path = 'tmp/logs/' + name + str(ID)
 
     # Network
@@ -30,7 +27,7 @@ def NN_ver(ID):
 
     # number of neurons for neural network layers
     n_hidden_1 = n_neurons1
-    n_hidden_2 = n_neurons2 #
+    n_hidden_2 = n_neurons2
     n_hidden_3 = n_neurons1
 
     # tf Graph input
@@ -38,7 +35,7 @@ def NN_ver(ID):
 
     # Define layers weight & bias
     weights = {
-        'h1': tf.Variable(tf.random_normal([n_inputs, n_hidden_1], stddev=0.07)), #std: (2/n_inputs)^0.5
+        'h1': tf.Variable(tf.random_normal([n_inputs, n_hidden_1], stddev=0.07)), #stddev: (2/n_inputs)^0.5
         'h2': tf.Variable(tf.random_normal([n_hidden_1, n_hidden_2], stddev=0.06)),
         'h3': tf.Variable(tf.random_normal([n_hidden_2, n_hidden_3], stddev=0.25)),
         'out': tf.Variable(tf.random_normal([n_hidden_3, n_outputs], stddev=0.06))
@@ -51,13 +48,13 @@ def NN_ver(ID):
         'out': tf.Variable(tf.random_normal([n_outputs]))
     }
 
-    def MLP(x): # Neural Network Architecture for verification whether sample comes form training distribution
-        layer_1 = tf.nn.relu(tf.add(tf.matmul(x, weights['h1']), biases['b1']))         #Compression lyer
+    def AutoEncoder(x): # Neural Network Architecture for verification whether sample comes form training distribution
+        layer_1 = tf.nn.relu(tf.add(tf.matmul(x, weights['h1']), biases['b1']))         #Compression layer
         layer_2 = tf.nn.relu(tf.add(tf.matmul(layer_1, weights['h2']), biases['b2']))
-        layer_3 = tf.nn.relu(tf.add(tf.matmul(layer_2, weights['h3']), biases['b3']))   #Decompression
+        layer_3 = tf.nn.relu(tf.add(tf.matmul(layer_2, weights['h3']), biases['b3']))   #Decompression layer
         out_layer = tf.add(tf.matmul(layer_3, weights['out']), biases['out'])
         return out_layer
-    logits = MLP(X)
+    logits = AutoEncoder(X)
 
     # define cost to optimize for
     regularization = (tf.nn.l2_loss(weights['h1']) + tf.nn.l2_loss(weights['h2'])+tf.nn.l2_loss(weights['h3'])+tf.nn.l2_loss(weights['out']))* reg
@@ -124,20 +121,20 @@ def NN_ver(ID):
 
 
 # START Set Parameters ..........................................................................
-# name: version_smoothing_neurons1_neurons2_noise_identifier_regularization_epochs
-name='5.1_05_512x32_noise1_verification_reg5000_500_110'
-name_learn = '5.1_05_512x32_noise1_verification_reg5000_500'
+# name format: version_smoothing_neurons1_neurons2_noise_identifier_regularization_epochs
+name='5.1_05_512x32_noise1_verification_reg5000_100'
+name_learn = '-'
 
-Load_IO = True #do we want to load a pretrained network
-Aviris_IO = True #do we want to predict AOT for AVIRIS-NG observations
-AVIRIS_eval_IO = False #do we want to predict AOT for all AVIRIS-NG observations.
+Load_IO = True          # do we want to load a pretrained network
+Aviris_IO = True        # do we want to predict AOT for AVIRIS-NG observations
+AVIRIS_eval_IO = False  # do we want to predict AOT for all AVIRIS-NG observations.
 
-reg = 1 / 5000 # L2 regularization factor
-n_neurons1 = 512 # number of neurons for first four layers
-n_neurons2 = 32 # number of neurons for last layer / 3
+reg = 1 / 5000          # L2 regularization factor
+n_neurons1 = 512        # number of neurons for first four layers
+n_neurons2 = 32         # number of neurons for last layer / 3
 
-training_epochs = 0  # how often to we iterate over our samples
-batch_size = 128  # how many examples to we use at once
+training_epochs = 100   # how often to we iterate over our samples
+batch_size = 128        # how many examples to we use at once
 
 # parameter for print/update
 display_step = 20
@@ -176,4 +173,4 @@ rand = np.arange(0,len(features_training_))
 random.shuffle(rand)
 
 # start the Neural Network
-NN_ver(1)
+NN_verification(1)
