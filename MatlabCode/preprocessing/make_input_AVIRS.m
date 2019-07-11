@@ -17,7 +17,7 @@ load('/Volumes/2TB/AVIRIS-NG/AvirisScan20160101.mat')
 day = 1;
 
 
-%load wavelength grid of MODTRAN radiative transfer calculations
+%load wavelength grid of radiative transfer calculations
 load('/Users/stma4117/Studium/LASP/Hyper/NN/GeneratedData/SurfaceGenerated4','wl')
 %load wavelength grid of AVIRIS-NG
 load('/Users/stma4117/Studium/LASP/Hyper/NN/Aviris/AvirisWL.mat')
@@ -29,8 +29,7 @@ Y = (X-(meanX-3*stdX))./(meanX+3*stdX);
 imagesc(Y)
 title('False Color Image')
 
-%% cut smaller 
-% choose image crop for neural network analysis
+%% choose image crop for neural network analysis
 height = 4400:4905;
 width = 201:300;
 
@@ -41,7 +40,7 @@ info = info(height, width, :);
 img = reshape(img, size(img,1)*size(img,2),425);
 info = reshape(info, size(info,1)*size(info,2),3);
 
-%Interpolate AVIRIS wavelength grid to MODTRAN wavelength grid
+%Interpolate AVIRIS wavelength grid to radiative transfer wavelength grid
 input_ = zeros(length(img),319);
 for i=1:length(img)
     input_(i,:) = interp1(AVIRISwl(:,1)*1000, img(i,:), wl);
@@ -62,7 +61,7 @@ SCORE = SCORE(:,1:16);
 A = SCORE*COEFF';
 input_ = A';
 
-%make input matrix for neural network with cos normalized radiance,
+%make input matrix for neural network with normalized radiance,
 %cos(SZA), ground elevation, distance sensor-ground
 inputAVIRIS = [input_./cosd(info(:,1)) cosd(info(:,1)) info(:,2:3)/1000];
 
