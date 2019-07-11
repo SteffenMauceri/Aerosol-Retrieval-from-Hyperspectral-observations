@@ -1,10 +1,10 @@
 # Trains multiple Neural Networks for the retrieval of aerosol optical thickness (AOT) from hyperspectral observations
-# similar to NN_5.1_mixed_ind_relu. However, for different amounts of AVIRIS-NG equivalent noise and sampling resolution
+# Similar to NN_5.1_for_AerosolRetrieval.py However, for different amounts of AVIRIS-NG equivalent noise and sampling resolution
 #
 # input: normalized (zero mean unit variance) hyperspectral radiance adjusted for Sun-Earth distance
 # (radiance * (1 - 0.01672*cos(0.9856*(day_of_year - 4))^2) and SZA (radiance / cos(SZA))
 #
-# output: AOT for brown carbon, dust and sulfate @ 550nm.
+# output: AOT for carbon, dust and sulfate @ 550nm.
 #
 # note:
 # - runtime is approximately 100h on NVIDIA GTX 1060 GPU
@@ -31,8 +31,8 @@ for n in [0, 1, 3, 9]: #0, 1, 3, 9
             logs_path = 'tmp/logs/' + name2 + str(ID)
 
             # Network
-            n_inputs = 319+3  # number of inputs= radiance at 319 wavelength bands + SZA, Ground Elevation, Distance Sensor-Surface
-            n_outputs = 3  # number of outputs= AOT for brown carbon, dust and sulfate
+            n_inputs = 319+3    # number of inputs= radiance at 319 wavelength bands + SZA, Ground Elevation, Sensor-Surface Distance 
+            n_outputs = 3       # number of outputs= AOT for carbon, dust and sulfate
 
             n_hidden_1 = np.int32(128)
             n_hidden_2 = n_hidden_1
@@ -46,7 +46,7 @@ for n in [0, 1, 3, 9]: #0, 1, 3, 9
             X = tf.placeholder('float', [None, n_inputs])
             Y = tf.placeholder('float', [None, n_outputs])
 
-            # Store layers weight & bias
+            # Define layers weight & bias
             weights = {
                 'h1': tf.Variable(tf.random_normal([n_inputs, n_hidden_1], stddev=0.07)),
                 'h2': tf.Variable(tf.random_normal([n_hidden_1, n_hidden_2], stddev=0.07)),
@@ -97,7 +97,6 @@ for n in [0, 1, 3, 9]: #0, 1, 3, 9
                               + tf.nn.l2_loss(weights['h43']) + tf.nn.l2_loss(weights['h41out'])
                               + tf.nn.l2_loss(weights['h42out'])
                               + tf.nn.l2_loss(weights['h43out']))* reg
-
             mean_square_error = tf.losses.mean_squared_error(logits, Y)
             MSE = mean_square_error
             loss_op = mean_square_error + regularization  # add up both losses
@@ -109,7 +108,7 @@ for n in [0, 1, 3, 9]: #0, 1, 3, 9
             # Initializing the variables
             init = tf.global_variables_initializer()
 
-            minima = 100  # make it large
+            minima = 100  # initialize to track MSE
             last_MSE = minima
 
             # ...........................start training...........................
@@ -119,12 +118,13 @@ for n in [0, 1, 3, 9]: #0, 1, 3, 9
                 writer = tf.summary.FileWriter(logs_path, sess.graph)
                 writer.close()
 
+                # restore our trained model weights and biases
                 if Load_IO:
-                    saver.restore(sess, '../trained/'+ name_learn)  # restore our trained model weights and biases
+                    saver.restore(sess, '../trained/'+ name_learn)  
                     print('model restored')
 
                 # Training cycle
-                for epoch in range(training_epochs):  # training_epochs = number of total epoch runs
+                for epoch in range(training_epochs):
 
                     n_batches = int(len(features_training_[:, 1]) / batch_size)  # number of batches
 
@@ -165,7 +165,7 @@ for n in [0, 1, 3, 9]: #0, 1, 3, 9
                         if minima > MSE_test:
                             minima = MSE_test
 
-                # if we ran out of epochs, could not minimize the MSE on the training-set anymore or started overfitting the model the training is finished
+                # if we ran out of epochs, could not minimize the MSE on the training-set anymore or started overfitting the training is finished
                 print('finished training')
 
                 if training_epochs > 1:
@@ -183,15 +183,15 @@ for n in [0, 1, 3, 9]: #0, 1, 3, 9
                 graph(name2) #reverse normalization and export to a .mat file for Matlab
 
         #..........................................................................
-        NoiseCase = n # AVIRIS-NG equivalent nosie multiplier
-        SamplingCase = s # Number of wavelengths available for AOT retrieval
-        Load_IO = False #do we want to load a pretrained network
+        NoiseCase = n       # AVIRIS-NG equivalent nosie multiplier
+        SamplingCase = s    # Number of wavelengths available for AOT retrieval
+        Load_IO = False     # do we want to load a pretrained network
 
         name2='5.1_05_128x32_noise_' + str(NoiseCase) + '_sampling_' + str(SamplingCase) + '_reg5000_ind_relu'
-        name_learn = '5.1_128x32_noise_' + str(NoiseCase) + '_sampling_' + str(SamplingCase) + '_reg5000_ind_relu'
+        name_learn = '-'
         print(name2)
 
-        # Choose the training dataset that differ by the amount of AVIRIS-NG equivalent noise
+        # Choose the training dataset. They differ by the amount of AVIRIS-NG equivalent noise
         if NoiseCase == 0:
             data = np.load('data/input_output_mix_5_05_refl_noise0.npz')
         elif NoiseCase == 1:
@@ -238,8 +238,8 @@ for n in [0, 1, 3, 9]: #0, 1, 3, 9
         rand = np.arange(0,len(features_training_))
         random.shuffle(rand)
 
-        training_epochs = 10000  # how often to maximally we iterate over our samples
-        batch_size = 128  # how many examples to we use at once
+        training_epochs = 10000     # how often to maximally iterate over training samples
+        batch_size = 128            # how many examples to we use at once
 
         # parameter for print/update
         display_step = 40
