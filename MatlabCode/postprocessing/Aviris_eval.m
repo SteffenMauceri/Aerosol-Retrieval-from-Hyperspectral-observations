@@ -16,7 +16,7 @@ visualize_IO = false;
 cutOff_perc = true;
 
 % name of neural network that generated AOT for AVIRIS flights
-name = '5.1_05_128x32_noise1_reg5000_2000_ind_relu_refl_eval'
+name = '5.1_05_128x32_noise1_reg5000_2000_ind_relu_refl'
 %% END Make Changes .................
 
 load(strcat('/Users/stma4117/Studium/LASP/Hyper/NN/PythonOverflow/trained/prediction_AVIRIS' , name,'.mat'))
@@ -27,10 +27,10 @@ prediction(:,2:4) = prediction(:,1:3);
 prediction(:,1) = sum(prediction(:,2:4),2);
 AVIRIS = prediction;
 
-% load output from verification neural network to mask AVIRIS pixel that
-% are to different to the training set. Radiance at every wavelengt was
+% load output from verification neural network to mask AVIRIS pixels that
+% are to different to the training-set. Radiance at every wavelengt was
 % compared and difference was calculated
-name = '5.1_05_512x32_noise1_verification_reg5000_500';
+name = '5.1_05_512x32_noise1_verification_reg5000_100';
 load(strcat('/Users/stma4117/Studium/LASP/Hyper/NN/PythonOverflow/trained/prediction_AVIRIS' , name,'.mat'), 'verification')
 % concaternate with AOT predictions
 AVIRIS(:,5:322+4) = verification;
