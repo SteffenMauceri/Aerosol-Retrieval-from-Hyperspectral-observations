@@ -2,9 +2,9 @@
 Code for the paper: "Neural Network for Aerosol Retrieval from Hyperspectral Imagery" available at: https://www.atmos-meas-tech-discuss.net/amt-2019-228/. If you use part of this code in your published work, please cite this paper.
 
 Radiative Transfer calculations are first prepared in Matlab to train the Neural Network: 
-  1. run MODTInterpolator.m
-  2. run RadianceGenerator4.m
-  3. run make_input_output_mix.m
+  1. run Interpolate_RadTrans_calc.m
+  2. run Add_Surface.m
+  3. run make_training_set.m
   
 Hyperspectral observations from AVIRIS-NG are prepared to make predictions of aerosol optical thickness once the model is trained: 
   1. run make_input_AVIRIS.m
@@ -23,4 +23,4 @@ The actual training of the Neural Network is performed in Python / Tensorflow. A
   
   
   
-  note: training data can be made available upon request
+  note: the full data can be made available upon request. Shortened datasets are provided.
