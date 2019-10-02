@@ -11,11 +11,7 @@ The actual training of the Neural Network is performed in Python / Tensorflow. A
   2. run NN_for_AerosolRetrieval.py
   3. run NN_for_verification.py
   
- To analyze the results run the follwoing programs in Matlab in no particular order
-  1. run compare_AVIRIS_CAMS.m (comparison to CAMS aerosol model)
-  2. run compare_AVIRIS_MODIS.m (comparison to MODIS aerosol retrieval)
-  3. run PlotAVIRIS.m (plot spatially resolved aerosol retrieval for AVIRIS scene)
+
   
   
-  
-  note: the full data can be made available upon request. Shortened datasets are provided.
+  note: the full training data can be made available upon request. Shortened datasets are provided.
