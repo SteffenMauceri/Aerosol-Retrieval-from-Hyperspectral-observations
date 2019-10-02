@@ -1,5 +1,5 @@
 # Aerosol-Retrieval-from-Hyperspectral-observations
-Code for the paper: "Neural Network for Aerosol Retrieval from Hyperspectral Imagery" available at: https://www.atmos-meas-tech-discuss.net/amt-2019-228/. If you use part of this code in you published work, please cite this paper.
+Code for the paper: "Neural Network for Aerosol Retrieval from Hyperspectral Imagery" available at: https://www.atmos-meas-tech-discuss.net/amt-2019-228/. If you use part of this code in your published work, please cite this paper.
 
 Radiative Transfer calculations are first prepared in Matlab to train the Neural Network: 
   1. run MODTInterpolator.m
