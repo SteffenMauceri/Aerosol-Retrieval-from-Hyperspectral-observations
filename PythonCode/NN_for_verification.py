@@ -116,17 +116,17 @@ def NN_verification(ID):
             error = prediction - Aviris_eval_in
             verification = np.asarray(error[0], dtype=np.float64)
             # export as MATLAB file without reversing normalization
-            scipy.io.savemat('../PythonOverflow/trained/prediction_AVIRIS' + name + '.mat', dict(verification=verification))
+            scipy.io.savemat('/trained/prediction_AVIRIS' + name + '.mat', dict(verification=verification))
             print('AVIRIS saved')
 
 
 # START Set Parameters ..........................................................................
 # name format: version_smoothing_neurons1_neurons2_noise_identifier_regularization_epochs
-name='5.1_05_512x32_noise1_verification_reg5000_100'
+name='My_verification_NN'
 name_learn = '-'
 
-Load_IO = True          # do we want to load a pretrained network
-Aviris_IO = True        # do we want to predict AOT for AVIRIS-NG observations
+Load_IO = False          # do we want to load a pretrained network
+Aviris_IO = False        # do we want to predict AOT for AVIRIS-NG observations
 AVIRIS_eval_IO = False  # do we want to predict AOT for all AVIRIS-NG observations.
 
 reg = 1 / 5000          # L2 regularization factor
@@ -141,15 +141,15 @@ display_step = 20
 # END Set Parameters ..........................................................................
 
 print(name)
-data = np.load('data/input_output_mix_5_refl.npz') #Training data
+data = np.load('data/input_output.npz') #Training data
 features = data['input']
 
 if Aviris_IO:
     if AVIRIS_eval_IO:
-        data = np.load('data/Aviris_eval_5_refl.npz')
+        data = np.load('... data/Aviris_eval_5_refl.npz')
         Aviris_eval_in = data['input']
     else:
-        data = np.load('../PythonOverflow/data/AVIRIS_20160110_refl.npz')  # AVIRIS-NG observations we want to predict AOT for
+        data = np.load('... data/AVIRIS_20160110_refl.npz')  # AVIRIS-NG observations we want to predict AOT for
         Aviris_eval_in = data['AVIRIS']
 
 np.random.seed(12345)  #initialize random number generator for repeatability

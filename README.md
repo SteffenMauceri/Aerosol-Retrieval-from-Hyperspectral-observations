@@ -6,15 +6,10 @@ Radiative Transfer calculations are first prepared in Matlab to train the Neural
   2. run Add_Surface.m
   3. run make_training_set.m
   
-Hyperspectral observations from AVIRIS-NG are prepared to make predictions of aerosol optical thickness once the model is trained: 
-  1. run make_input_AVIRIS.m
-  
 The actual training of the Neural Network is performed in Python / Tensorflow. After training on the radiative transfer calculations the Neural Network can be used to predict aerosol optical thickness from hyperspectral observations from AVIRIS-NG
   1. run Preprocessing.py
-  2. run Preprocessing_AVIRIS_Plot.py
-  3. run Preprocessing_AVIRIS_eval.py
-  4. run NN_5.1_for_AerosolRetrieval.py
-  5. run NN_3.0_for_verification.py
+  2. run NN_for_AerosolRetrieval.py
+  3. run NN_for_verification.py
   
  To analyze the results run the follwoing programs in Matlab in no particular order
   1. run compare_AVIRIS_CAMS.m (comparison to CAMS aerosol model)

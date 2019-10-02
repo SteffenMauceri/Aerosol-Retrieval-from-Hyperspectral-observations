@@ -22,9 +22,9 @@ import tensorflow as tf
 import time
 
 # import functions for export of neural network predictions
-from export_5_ind import graph
-from export_5_ind import export_AVIRIS
-from export_5_ind import export_sensitivity
+from export_2_Matlab import graph
+from export_2_Matlab import export_AVIRIS
+from export_2_Matlab import export_sensitivity
 
 
 def NN(ID):
@@ -33,7 +33,6 @@ def NN(ID):
     # Network
     n_inputs = 319+3    # number of inputs= radiance at 319 wavelength bands + SZA, Ground Elevation, Distance Sensor-Surface
     n_outputs = 3       # number of outputs= AOT for brown carbon, dust and sulfate
-    n_surf = 8          #number of surfaces types
 
     # number of neurons for the first 4 layers
     n_hidden_1 = n_neurons1
@@ -45,8 +44,6 @@ def NN(ID):
     # tf Graph input
     X = tf.placeholder('float', [None, n_inputs])
     Y = tf.placeholder('float', [None, n_outputs])
-
-    Z = tf.placeholder('float', [None, n_surf])
 
     # Define layers weight & bias
     weights = {
@@ -74,25 +71,10 @@ def NN(ID):
         'b42out': tf.Variable(tf.random_normal([1])),
         'b43out': tf.Variable(tf.random_normal([1]))
     }
-    if Surface_IO:
-        weights.update({'h1': tf.Variable(tf.random_normal([n_inputs + n_surf, n_hidden_1], stddev=0.07)),
-                        'h01': tf.Variable(tf.random_normal([n_inputs, n_hidden_1], stddev=0.07)),
-                        'h02': tf.Variable(tf.random_normal([n_hidden_1, n_surf], stddev=0.07))})
-        biases.update({'b1': tf.Variable(tf.random_normal([n_inputs+n_surf])),
-                       'b01': tf.Variable(tf.random_normal([n_hidden_1])),
-                        'b02': tf.Variable(tf.random_normal([n_surf]))})
 
-        def sur(x): # Neural Network Architecture for surface type retrieval
-            layer_01 = tf.nn.relu(tf.add(tf.matmul(x, weights['h01']), biases['b01']))  # surface
-            layer_02 = tf.nn.sigmoid(tf.add(tf.matmul(layer_01, weights['h02']), biases['b02']))  # surface
-            return layer_02
-        surface = sur(X)
 
     def MLP(x): # Neural Network Architecture for AOT retrieval
-        if Surface_IO:
-            layer_1 = tf.nn.relu(tf.add(tf.matmul(tf.concat([x, surface], 1), weights['h1']), biases['b1']))  # aerosol
-        else:
-            layer_1 = tf.nn.relu(tf.add(tf.matmul(x, weights['h1']), biases['b1']))
+        layer_1 = tf.nn.relu(tf.add(tf.matmul(x, weights['h1']), biases['b1']))
 
         layer_2 = tf.nn.relu(tf.add(tf.matmul(layer_1, weights['h2']), biases['b2']))
         layer_3 = tf.nn.relu(tf.add(tf.matmul(layer_2, weights['h3']), biases['b3']))
@@ -126,12 +108,8 @@ def NN(ID):
 
     MSE = mean_square_error
 
-    if Surface_IO:
-        regularization_surface = (tf.nn.l2_loss(weights['h01']) / 10 + tf.nn.l2_loss(weights['h02']) / 10) * reg
-        surface_error = tf.math.reduce_mean(tf.math.square(surface[:, 1:8] - Z[:, 1:8]) * (Z[:, 0:1]))
-        loss_op = mean_square_error + surface_error + regularization + regularization_surface  # loss operation we seek to minimize
-    else:
-        loss_op = mean_square_error + regularization  # loss operation we seek to minimize
+
+    loss_op = mean_square_error + regularization  # loss operation we seek to minimize
 
     optimizer = tf.train.AdamOptimizer(learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1) # optimizer algorithm that minimizes loss_op
     train_op = optimizer.minimize(loss_op)
@@ -161,14 +139,12 @@ def NN(ID):
 
             features_training = features_training_[rand,:] #scramble order of training examples
             targets_training = targets_training_[rand, :]
-            type_training = type_training_[rand, :]
 
 
             for i in range(n_batches):
                 sess.run([train_op, loss_op], #run training step
                          feed_dict={X: features_training[i * batch_size:i * batch_size + batch_size, :],
-                                    Y: targets_training[i * batch_size:i * batch_size + batch_size, :],
-                                    Z: type_training[i * batch_size:i * batch_size + batch_size, :]})
+                                    Y: targets_training[i * batch_size:i * batch_size + batch_size, :]})
 
             if epoch % display_step == 0:
                 print('\n')
@@ -181,13 +157,6 @@ def NN(ID):
 
                 print(MSE_training)
                 print(MSE_test)
-
-                if Surface_IO:
-                    MSE_test_type = sess.run(surface_error, feed_dict={X: features_test, Z: type_test})
-                    MSE_training_type = sess.run(surface_error, feed_dict={X: features_training[0:10000, :],
-                                                                       Z: type_training[0:10000, :]})
-                    print(MSE_training_type)
-                    print(MSE_test_type)
 
                 delta_MSE = last_MSE - MSE_training #check whether our MSE on the training-set is going down. If it doesn't -> stop training
                 if delta_MSE < 0.00001 and delta_MSE > 0:
@@ -218,15 +187,8 @@ def NN(ID):
         prediction_np = np.asarray(prediction[0], dtype=np.float64) # convert to numpy array
         target_np = np.asanyarray(targets_test, dtype=np.float64)
 
-        if Surface_IO:
-            prediction_type = sess.run([surface], feed_dict={X: features_test})
-            prediction_type_np = np.asarray(prediction_type[0], dtype=np.float64)
-            target_type_np = np.asanyarray(type_test, dtype=np.float64)
-            np.savez('data/prediction' + name + '.npz', prediction_np=prediction_np,
-                     target_np=target_np, target_type_np=target_type_np, prediction_type_np=prediction_type_np)
-        else:
-            np.savez('data/prediction' + name + '.npz', prediction_np=prediction_np,
-                     target_np=target_np)  # save predictions and ground truth
+        np.savez('data/prediction' + name + '.npz', prediction_np=prediction_np,
+                 target_np=target_np)  # save predictions and ground truth
 
         print(str(ID) + ' saved ' + name)
         print('reg' + str(reg))
@@ -236,7 +198,7 @@ def NN(ID):
         if Aviris_IO:
             prediction = sess.run([logits], feed_dict={X: Aviris_eval_in}) # calculate AOT prediction with trained model
             prediction_np = np.asarray(prediction[0], dtype=np.float64)# convert to numpy array
-            np.savez('../PythonOverflow/data/prediction_AVIRIS' + name + '.npz', prediction_np=prediction_np)
+            np.savez('... data/prediction_AVIRIS' + name + '.npz', prediction_np=prediction_np)
             export_AVIRIS(name)#reverse normalization and exort to a .mat file for Matlab
 
         #sensitivity analysis
@@ -255,55 +217,50 @@ def NN(ID):
 
             prediction_np = np.asarray(prediction_sensitivity, dtype=np.float64)
             target_np = np.asanyarray(targets_test, dtype=np.float64)
-            np.savez('../PythonOverflow/data/prediction_sensitivity' + name + '.npz',
+            np.savez('data/prediction_sensitivity' + name + '.npz',
                      prediction_np=prediction_np, target_np=target_np) #save prediction
             print(str(ID) + ' saved ' + name)
             export_sensitivity(name) #reverse normalization and exort to a .mat file for Matlab
 
 # START Set Parameters ..........................................................................
 # name format: version_smoothing_neurons1_neurons2_noise_regularization_epochs_NNarchitecture_activation_normalization
-name = '5.1_05_256x32_noise1_reg5000_2000_ind_relu_refl_110' #name of network that we are training
-name_learn = '5.1_05_256x32_noise1_reg5000_2000_ind_relu_refl' # name of network we are loading if (Load_IO == True)
+name = 'My_NN' #name of network that we are training
+name_learn = 'Pretrained_NN' # name of network we are loading if (Load_IO == True)
 
-Load_IO = True          #do we want to load a pretrained network
-Aviris_IO = True        #do we want to predict AOT for AVIRIS-NG observations
+Load_IO = False          #do we want to load a pretrained network
+Aviris_IO = False        #do we want to predict AOT for AVIRIS-NG observations
 AVIRIS_eval_IO = False  #do we want to predict AOT for all AVIRIS-NG observations.
 Sensitivity_IO = False  #do we want to perform a sensitivity analysis
-Surface_IO = False      #do we want to retrieve the surface type as part of the Neural Network
 weighted_IO = False     #do we want to weight error on carbon twice as much as dust and sulfate
 
 reg = 1 / 5000          # L2 regularization factor
 n_neurons1 = 128        # number of neurons for first four layers
 n_neurons2 = 32         # number of neurons for last layer / 3
 
-training_epochs = 0     # how often to we maximally iterate over our samples. Set to 0 for no training, just prediction
-batch_size = 128        # how many examples to we use at once
+training_epochs = 200     # how often to we maximally iterate over our samples. Set to 0 for no training, just prediction
+batch_size = 8        # how many examples to we use at once
 
 # parameter for print/update
 display_step = 40
 # END Set Parameters ..........................................................................
 
 print(name)
-data = np.load('data/input_output_mix_5_refl.npz') #Training data
+data = np.load('data/input_output.npz') #Training data
 targets = data['output']
 targets = targets[:,1:4]
 features = data['input']
-surf = data['type'] # load surface type. First element stands for unknown surface
-# Set unknown surface to 0 if it represents more than 20% of the surface mixture. 
-# We will ignore these surface retrievals when calculating our loss
-surf[:,0] = np.where(surf[:,0]>0.2,0,1) 
 
 if Aviris_IO:
     if AVIRIS_eval_IO:
-        data = np.load('data/Aviris_eval_5_refl.npz')
+        data = np.load('... data/Aviris_eval_5_refl.npz')
         Aviris_eval_in = data['input']
     else:
-        data = np.load('../PythonOverflow/data/AVIRIS_20160110_refl.npz')  # AVIRIS-NG observations we want to predict AOT for
+        data = np.load('... data/AVIRIS_20160110_refl.npz')  # AVIRIS-NG observations we want to predict AOT for
         Aviris_eval_in = data['AVIRIS']
 
 np.random.seed(12345) #initialize random number generator for repeatability
 
-randTest = np.int32(np.random.rand(10000) * (len(features[:-1, 1])))
+randTest = np.int32(np.random.rand(10) * (len(features[:-1, 1])))
 all = np.arange(len(features[:-1, 1]))
 mask = np.ones(len(features[:-1, 1]), dtype=bool)
 mask[randTest] = False
@@ -312,12 +269,10 @@ notTest = all[mask]
 #choose validation set
 features_test = features[randTest,:]
 targets_test=targets[randTest,:]
-type_test=surf[randTest,:]
 
 #choose training set
 features_training_=features[notTest,:]
 targets_training_=targets[notTest,:]
-type_training_=surf[notTest,:]
 
 print(randTest[0:8])# sanity check
 print(notTest[0:8])

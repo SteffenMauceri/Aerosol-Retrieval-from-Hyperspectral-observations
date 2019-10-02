@@ -16,7 +16,7 @@ def graph(name):
     target = data['target_np']
 
     #reverse normalization
-    data = np.load('data/normalization_mix_5_refl.npz') # load normalization
+    data = np.load('data/normalization.npz') # load normalization
     target_raw_std = data['output_std'] #load standard deviation
     target_raw_mean = data['output_mean'] # load mean
     # targets contain combined AOT in first column that is currently not used
@@ -28,32 +28,32 @@ def graph(name):
     for i in range(0,3):
         print(str(np.std(np.abs(prediction[:,i]-target[:,i]))))
 
-    scipy.io.savemat('../trained/prediction'+ name +'.mat', dict(prediction=prediction, target=target))
+    scipy.io.savemat('/trained/prediction'+ name +'.mat', dict(prediction=prediction, target=target))
 
 # export predictions for AVIRIS retrievals
 def export_AVIRIS(name):
     #import aerosol optical thickness (AOT) prediction
-    data = np.load('../PythonOverflow/data/prediction_AVIRIS'+ name +'.npz')
+    data = np.load('... data/prediction_AVIRIS'+ name +'.npz')
     prediction = data['prediction_np']
 
     # reverse normalization
-    data = np.load('data/normalization_mix_5_refl.npz') # load normalization
+    data = np.load('data/normalization.npz') # load normalization
     target_raw_std = data['output_std']                 # load standard deviation
     target_raw_mean = data['output_mean']               # load mean
     prediction = (prediction*target_raw_std[1:4])+target_raw_mean[1:4]
 
-    scipy.io.savemat('../PythonOverflow/trained/prediction_AVIRIS'+ name +'.mat', dict(prediction=prediction))
+    scipy.io.savemat('/trained/prediction_AVIRIS'+ name +'.mat', dict(prediction=prediction))
 
 
 # export predictions for sensitivity analysis
 def export_sensitivity(name):
 #import our prediction
-    data = np.load('../PythonOverflow/data/prediction_sensitivity'+ name +'.npz')
+    data = np.load('... data/prediction_sensitivity'+ name +'.npz')
     prediction = data['prediction_np']
     target = data['target_np']
     
     # reverse normalization
-    data = np.load('data/normalization_mix_5_refl.npz')
+    data = np.load('data/normalization.npz')
     target_raw_std = data['output_std']
     target_raw_mean = data['output_mean']
 
@@ -64,8 +64,7 @@ def export_sensitivity(name):
 
     prediction = (prediction*np.tile(target_raw_std, (len(prediction),1,322)))+np.tile(target_raw_mean, (len(prediction),1,322))
 
-    scipy.io.savemat('../PythonOverflow/trained/prediction_sensitivity'+ name +'.mat', dict(prediction=prediction, target=target))
-
+    scipy.io.savemat('/trained/prediction_sensitivity'+ name +'.mat', dict(prediction=prediction, target=target))
 
 
 #name = '5.1_05_128x32_noise1_reg5000_2200_ind_relu_refl'
